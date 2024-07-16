@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Task</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .row {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid black;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        class DivManager {
+            constructor() {
+                this.divs = [];
+                this.originalPositions = new Map();
+                this.initDivs();
+            }
+
+            initDivs() {
+                for (let i = 0; i < 100; i++) {
+                    const div = this.createDiv(i);
+                    document.body.appendChild(div);
+                    this.divs.push(div);
+                    this.originalPositions.set(div, i);
+                }
+            }
+
+            createDiv(index) {
+                const div = document.createElement('div');
+                div.className = 'row';
+                div.textContent = `div${index + 1}`;
+                div.addEventListener('click', () => this.handleDivClick(div));
+                return div;
+            }
+
+            handleDivClick(div) {
+                const currentIndex = this.divs.indexOf(div);
+                if (!div.dataset.moved) {
+                    this.moveDivToTop(div, currentIndex);
+                } else {
+                    this.restoreDivPosition(div, currentIndex);
+                }
+            }
+
+            moveDivToTop(div, currentIndex) {
+                document.body.insertBefore(div, document.body.firstChild);
+                this.divs.splice(currentIndex, 1);
+                this.divs.unshift(div);
+                div.dataset.moved = 'true';
+            }
+
+            restoreDivPosition(div, currentIndex) {
+                div.dataset.moved = '';
+                this.divs.splice(currentIndex, 1);
+                const originalIndex = this.originalPositions.get(div);
+                if (originalIndex === this.divs.length) {
+                    document.body.appendChild(div);
+                } else {
+                    document.body.insertBefore(div, this.divs[originalIndex]);
+                }
+                this.divs.splice(originalIndex, 0, div);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => new DivManager());
+    </script>
+</body>
+</html>
